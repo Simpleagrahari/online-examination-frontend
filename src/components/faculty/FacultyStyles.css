@@ -1,0 +1,825 @@
+/* Faculty Portal Design System - Pixel Perfect Parity */
+.faculty-portal-root {
+  --fd: 'Outfit', sans-serif;
+  --fb: 'DM Sans', sans-serif;
+  --fcode: 'JetBrains Mono', monospace;
+  --in1: #eef2ff;
+  --in4: #818cf8;
+  --in5: #4338ca;
+  --s500: #6366f1;
+  --green: #16a34a;
+  --gbg: #f0fdf4;
+  --gbr: rgba(22, 163, 74, .15);
+  --amber: #d97706;
+  --abg: #fffbeb;
+  --red: #dc2626;
+  --rbg: #fef2f2;
+  --cy1: #ecfeff;
+  --cy4: #0891b2;
+  --cy5: #0e7490;
+  --teal: #0d9488;
+  --teal1: #f0fdfa;
+  --g50: #f9fafb;
+  --g100: #f3f4f6;
+  --g200: #e5e7eb;
+  --g300: #9ca3af;
+  --g400: #6b7280;
+  --g700: #374151;
+  --g900: #111827;
+  --rl: 16px;
+  --r: 10px;
+  /* Faculty teal accent */
+  --fac: #0d9488;
+  --fac1: #f0fdfa;
+  --fac2: #ccfbf1;
+  --fac4: #2dd4bf;
+
+  font-family: var(--fb);
+  background: #f0f3f9;
+  min-height: 100vh;
+  color: var(--g900);
+}
+
+/* ─── TOP BAR ─── */
+.faculty-portal-root .ztop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--g900);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, .55);
+}
+
+.faculty-portal-root .ztop-brand {
+  font-family: var(--fd);
+  font-weight: 700;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.faculty-portal-root .ztop-ic {
+  background: var(--fac);
+  border-radius: 5px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.faculty-portal-root .ztop-sep {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, .15);
+}
+
+.faculty-portal-root .ztop-lnk {
+  color: rgba(255, 255, 255, .5);
+  text-decoration: none;
+  font-size: 11px;
+  transition: color .15s;
+}
+
+.faculty-portal-root .ztop-lnk:hover {
+  color: #fff;
+}
+
+.faculty-portal-root .ztop-lnk.act {
+  color: #fff;
+  font-weight: 600;
+}
+
+.faculty-portal-root .tb-fac {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  background: rgba(13, 148, 136, .25);
+  color: #5eead4;
+}
+
+/* ─── SIDEBAR ─── */
+.faculty-portal-root .shell {
+  display: flex;
+  min-height: calc(100vh - 36px);
+  margin-top: 36px;
+}
+
+.faculty-portal-root .sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid var(--g200);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 36px);
+  position: sticky;
+  top: 36px;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+
+.faculty-portal-root .sb-head {
+  padding: 18px 16px 12px;
+  border-bottom: 1px solid var(--g100);
+}
+
+.faculty-portal-root .sb-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.faculty-portal-root .sb-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.faculty-portal-root .sm-fac {
+  background: linear-gradient(135deg, var(--fac), var(--cy4));
+}
+
+.faculty-portal-root .sb-name {
+  font-family: var(--fd);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--g900);
+}
+
+.faculty-portal-root .sb-sub {
+  font-size: 10px;
+  color: var(--g300);
+}
+
+.faculty-portal-root .sb-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.faculty-portal-root .sp-fac {
+  background: var(--fac1);
+  color: var(--fac);
+}
+
+.faculty-portal-root .sb-user {
+  background: var(--g50);
+  border-radius: 9px;
+  padding: 8px 10px;
+}
+
+.faculty-portal-root .sb-av {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fd);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.faculty-portal-root .av-fac {
+  background: linear-gradient(135deg, var(--fac), var(--cy4));
+  color: #fff;
+}
+
+.faculty-portal-root .sb-uname {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--g900);
+}
+
+.faculty-portal-root .sb-urole {
+  font-size: 10px;
+  color: var(--g400);
+}
+
+.faculty-portal-root .sb-sec {
+  padding: 10px 16px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--g300);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.faculty-portal-root .ni {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  color: var(--g400);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: background .12s, color .12s;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.faculty-portal-root .ni:hover {
+  background: var(--g50);
+  color: var(--g900);
+}
+
+.faculty-portal-root .ni.active {
+  background: var(--fac1);
+  color: var(--fac);
+  font-weight: 700;
+}
+
+.faculty-portal-root .niv {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.faculty-portal-root .nbg {
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  margin-left: auto;
+  font-weight: 700;
+}
+
+.faculty-portal-root .nb-c {
+  background: var(--in1);
+  color: var(--in5);
+}
+
+.faculty-portal-root .nb-r {
+  background: var(--rbg);
+  color: var(--red);
+}
+
+.faculty-portal-root .sb-foot {
+  padding: 12px 16px;
+  border-top: 1px solid var(--g100);
+  margin-top: auto;
+}
+
+.faculty-portal-root .sb-out {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--g400);
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background .12s;
+}
+
+.faculty-portal-root .sb-out:hover {
+  background: var(--rbg);
+  color: var(--red);
+}
+
+/* ─── MAIN ─── */
+.faculty-portal-root .main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.faculty-portal-root .hdr {
+  background: #fff !important;
+  border-bottom: 1px solid var(--g200);
+  padding: 0 24px;
+  height: 62px;
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  position: fixed;
+  top: 36px;
+  left: 230px;
+  right: 0;
+  z-index: 1010;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.faculty-portal-root .hdr-title {
+  font-family: var(--fd);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--g900);
+}
+
+.faculty-portal-root .hdr-sub {
+  font-size: 11px;
+  color: var(--g400);
+}
+
+.faculty-portal-root .hs {
+  background: var(--g50);
+  border: 1px solid var(--g200);
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.faculty-portal-root .hs input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 12.5px;
+  color: var(--g900);
+  width: 100%;
+}
+
+.faculty-portal-root .pchip {
+  background: var(--g50);
+  border: 1px solid var(--g200);
+  border-radius: 9px;
+  padding: 5px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.faculty-portal-root .p-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--g900);
+  line-height: 1;
+}
+
+.faculty-portal-root .p-role {
+  font-size: 10px;
+  color: var(--g400);
+  margin-top: 2px;
+}
+
+.faculty-portal-root .hdiv {
+  width: 1px;
+  height: 20px;
+  background: var(--g200);
+}
+
+/* ─── PAGE BODY ─── */
+.faculty-portal-root .pg-body {
+  margin-top: 62px;
+  padding: 30px 30px 40px;
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  background: #f0f3f9;
+}
+
+.faculty-portal-root .pg-intro h2 {
+  font-family: var(--fd);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--g900);
+  margin-bottom: 2px;
+}
+
+.faculty-portal-root .pg-intro p {
+  font-size: 12.5px !important;
+  color: var(--g400) !important;
+  margin-bottom: 20px !important;
+}
+
+/* ─── BREADCRUMB FLOW ─── */
+.faculty-portal-root .flow-breadcrumb {
+  display: flex !important;
+  align-items: center;
+  gap: 0;
+  background: #fff;
+  border: 1px solid var(--g200);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+
+.faculty-portal-root .fb-step {
+  display: flex !important;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--g400);
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+  border: none;
+  background: none;
+}
+
+.faculty-portal-root .fb-step:hover {
+  background: var(--g50);
+  color: var(--g700);
+}
+
+.faculty-portal-root .fb-step.active {
+  background: linear-gradient(135deg, var(--fac), var(--cy4)) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, .3);
+}
+
+.faculty-portal-root .fb-step.done {
+  background: var(--fac1) !important;
+  color: var(--fac) !important;
+}
+
+.faculty-portal-root .fb-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.faculty-portal-root .fb-step.done .fb-num {
+  background: var(--fac) !important;
+  color: #fff !important;
+}
+
+.faculty-portal-root .fb-step.active .fb-num {
+  background: rgba(255, 255, 255, .3) !important;
+}
+
+.faculty-portal-root .fb-step:not(.active):not(.done) .fb-num {
+  background: var(--g200);
+  color: var(--g400);
+}
+
+/* ─── MINI STATS ─── */
+.faculty-portal-root .mini-stats {
+  display: flex !important;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.faculty-portal-root .ms-pill {
+  background: #fff;
+  border: 1px solid var(--g200);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+
+.faculty-portal-root .ms-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.faculty-portal-root .ms-val {
+  font-family: var(--fd);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--g900);
+  line-height: 1.2;
+}
+
+.faculty-portal-root .ms-lbl {
+  font-size: 11px;
+  color: var(--g400);
+  font-weight: 500;
+}
+
+/* ─── COURSE CARDS ─── */
+.faculty-portal-root .course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.faculty-portal-root .course-card {
+  background: #fff;
+  border: 1.5px solid var(--g200);
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, transform .12s;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+
+.faculty-portal-root .course-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 14px 14px 0 0;
+}
+
+.faculty-portal-root .course-card.c0::before { background: linear-gradient(90deg, var(--fac), var(--cy4)); }
+.faculty-portal-root .course-card.c1::before { background: linear-gradient(90deg, var(--in5), var(--s500)); }
+.faculty-portal-root .course-card.c2::before { background: linear-gradient(90deg, var(--amber), #f59e0b); }
+.faculty-portal-root .course-card.c3::before { background: linear-gradient(90deg, var(--green), #22c55e); }
+
+.faculty-portal-root .course-card:hover {
+  border-color: var(--fac);
+  box-shadow: 0 4px 20px rgba(13, 148, 136, .15);
+  transform: translateY(-2px);
+}
+
+.faculty-portal-root .cc-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 12px;
+  background: var(--fac1);
+}
+
+.faculty-portal-root .cc-name {
+  font-family: var(--fd);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--g900);
+  margin-bottom: 3px;
+}
+
+.faculty-portal-root .cc-code {
+  font-family: var(--fcode);
+  font-size: 11px;
+  color: var(--fac);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.faculty-portal-root .cc-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.faculty-portal-root .cc-chip {
+  background: var(--g50);
+  border: 1px solid var(--g100);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 10.5px;
+  color: var(--g400);
+}
+
+.faculty-portal-root .cc-actions {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+
+.faculty-portal-root .course-card:hover .cc-actions {
+  opacity: 1;
+}
+
+/* ─── TABLES ─── */
+.faculty-portal-root .tw {
+  border: 1px solid var(--g200);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.faculty-portal-root .tbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.faculty-portal-root .tbl th {
+  background: var(--g50);
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--g400);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  border-bottom: 1px solid var(--g200);
+  text-align: left;
+}
+
+.faculty-portal-root .tbl td {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--g700);
+  border-bottom: 1px solid var(--g100);
+}
+
+.faculty-portal-root .tbl tr:last-child td {
+  border-bottom: none;
+}
+
+/* ─── BADGES ─── */
+.faculty-portal-root .badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.faculty-portal-root .b-live { background: var(--gbg); color: var(--green); }
+.faculty-portal-root .b-scheduled { background: var(--in1); color: var(--in5); }
+.faculty-portal-root .b-completed { background: var(--g100); color: var(--g400); }
+.faculty-portal-root .b-flag { background: var(--rbg); color: var(--red); }
+.faculty-portal-root .b-clean { background: var(--fac1); color: var(--fac); }
+.faculty-portal-root .b-sub { background: var(--cy1); color: var(--cy4); }
+
+/* ─── BUTTONS ─── */
+.faculty-portal-root .btn-prim {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  background: linear-gradient(135deg, var(--fac), var(--cy4));
+  color: #fff !important;
+  font-family: var(--fd);
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(13, 148, 136, .3);
+  transition: opacity .15s, transform .1s;
+}
+
+.faculty-portal-root .btn-sec {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  background: #fff;
+  color: var(--g700);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--g200);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.faculty-portal-root .btn-xs {
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: 1.5px solid var(--g200);
+  background: #fff;
+  cursor: pointer;
+  color: var(--g700);
+  transition: all .12s;
+}
+
+.faculty-portal-root .btn-xs:hover {
+  border-color: var(--fac);
+  color: var(--fac);
+  background: var(--fac1);
+}
+
+.faculty-portal-root .btn-xs.danger:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--rbg);
+}
+
+/* ─── MODALS ─── */
+.faculty-portal-root .modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.faculty-portal-root .modal-box {
+  background: #fff;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  animation: modalScale 0.2s ease-out;
+}
+
+@keyframes modalScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.faculty-portal-root .modal-hd {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--g100);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.faculty-portal-root .modal-title {
+  font-family: var(--fd);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--g900);
+}
+
+.faculty-portal-root .modal-body {
+  padding: 24px;
+}
+
+/* ─── TOASTS ─── */
+.faculty-portal-root .toast-stack {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faculty-portal-root .toast {
+  padding: 12px 20px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: toastIn 0.3s ease;
+}
+
+.faculty-portal-root .toast.ok { background: var(--green); }
+.faculty-portal-root .toast.warn { background: var(--amber); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .faculty-portal-root .sidebar {
+    position: fixed;
+    left: 0;
+    top: 36px;
+    bottom: 0;
+    transform: translateX(-100%);
+    z-index: 1500;
+  }
+  .faculty-portal-root .ex-sidebar-open {
+    transform: translateX(0);
+  }
+  .faculty-portal-root .hdr {
+    left: 0 !important;
+  }
+}

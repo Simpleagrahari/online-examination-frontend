@@ -10,7 +10,7 @@ const AdminSubjects = () => {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const data = await getSubjects(token);
                 setSubjects(data);
             } catch (err) {

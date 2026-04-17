@@ -12,7 +12,7 @@ const AdminLayout = ({ children }) => {
     const toggleNotif = () => setIsNotifOpen(!isNotifOpen);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
+        const storedUser = sessionStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         } else {
@@ -29,8 +29,8 @@ const AdminLayout = ({ children }) => {
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         navigate('/');
     };
 

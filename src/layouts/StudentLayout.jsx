@@ -9,7 +9,7 @@ const StudentLayout = ({ children, pageTitle = 'Student Portal' }) => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
+        const storedUser = sessionStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         } else {
@@ -18,8 +18,8 @@ const StudentLayout = ({ children, pageTitle = 'Student Portal' }) => {
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         toast.info('Logged out successfully');
         navigate('/login');
     };

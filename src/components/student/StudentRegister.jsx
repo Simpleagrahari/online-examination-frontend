@@ -16,13 +16,12 @@ const schema = yup.object().shape({
   rollNo: yup.string().required('Roll/Enrollment No is required'),
   year: yup.string().required('Year of study is required'),
   password: yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
-  confirm: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match'),
-  agreed: yup.boolean().oneOf([true], 'Biometric consent is mandatory')
+  confirm: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match')
 });
 
 /* ── Step indicator ── */
 const StepTrack = ({ current }) => {
-  const steps = ['Identity', 'Academic', 'Security', 'Finish'];
+  const steps = ['Identity', 'Academic', 'Security'];
   return (
     <div className="d-flex justify-content-between mb-5 position-relative px-1">
       <div className="position-absolute top-50 start-0 end-0 translate-middle-y bg-light" style={{ height: '3px', zIndex: 0 }}></div>
@@ -56,13 +55,13 @@ const Branding = () => (
       </div>
     </div>
     <h2 className="display-6 fw-black mb-3 lh-1 animate__animated animate__fadeInLeft">ExamControl <span className="text-indigo-light text-opacity-75">AI</span></h2>
-    <p className="text-white text-opacity-75 mb-5 fs-6 fw-light animate__animated animate__fadeInUp">Next-Generation Biometric Examination Registry for Institutional Integrity.</p>
+    <p className="text-white text-opacity-75 mb-5 fs-6 fw-light animate__animated animate__fadeInUp">Next-Generation Examination Registry for Institutional Integrity.</p>
     
     <div className="vstack gap-3 mt-4">
       {[
-        { ic: '👤', t: 'Identity Enrollment', d: 'Secure permanent Face ID registration.' },
+        { ic: '👤', t: 'Identity Enrollment', d: 'Secure permanent registration.' },
         { ic: '📋', t: 'Verified Access', d: 'Institutional validation through Roll No.' },
-        { ic: '🛡️', t: 'Anti-Fraud System', d: 'Self-sovereign biometric consent.' }
+        { ic: '🛡️', t: 'Anti-Fraud System', d: 'Smart monitoring during exams.' }
       ].map((f, i) => (
         <div key={i} className="glass-card d-flex align-items-center gap-3 p-3 rounded-4 animate__animated animate__fadeInUp" style={{ animationDelay: `${i * 0.1}s` }}>
           <span className="fs-4">{f.ic}</span>
@@ -81,30 +80,16 @@ const StudentRegister = () => {
   const [step, setStep] = useState(1);
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [photo, setPhoto] = useState(null);
-  const [photoFile, setPhotoFile] = useState(null);
 
   const { register: reg, handleSubmit, trigger, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     mode: 'onBlur'
   });
 
-  const handlePhoto = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPhoto(URL.createObjectURL(file));
-      setPhotoFile(file);
-    }
-  };
-
   /* Validate and move to next step */
   const nextStep = async (fields) => {
     const isStepValid = await trigger(fields);
     if (isStepValid) {
-        if (step === 1 && !photoFile) {
-            toast.warning("Biometric Capture Required to Proceed!");
-            return;
-        }
         setStep(step + 1);
     } else {
         toast.error("Please fill all required fields correctly.");
@@ -114,19 +99,18 @@ const StudentRegister = () => {
   const onSubmit = async (data) => {
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append('name', `${data.firstName} ${data.lastName}`);
-      formData.append('email', data.email);
-      formData.append('password', data.password);
-      formData.append('rollNo', data.rollNo);
-      formData.append('dept', data.dept);
-      formData.append('year', data.year);
-      formData.append('role', 'student');
-      formData.append('image', photoFile);
-
-      const resp = await register(formData);
-      localStorage.setItem('token', resp.token);
-      localStorage.setItem('user', JSON.stringify(resp));
+      const resp = await register({
+          name: `${data.firstName} ${data.lastName}`,
+          email: data.email,
+          password: data.password,
+          rollNo: data.rollNo,
+          dept: data.dept,
+          year: data.year,
+          college: data.college,
+          role: 'student'
+      });
+      sessionStorage.setItem('token', resp.token);
+      sessionStorage.setItem('user', JSON.stringify(resp));
       setSuccess(true);
       toast.success("Identity Enrolled Successfully!");
     } catch (err) {
@@ -196,7 +180,7 @@ const StudentRegister = () => {
           </div>
           <span className="fw-black text-uppercase ls-1 small mb-0">ExamControl AI</span>
         </Link>
-        <div className="ms-auto"><span className="badge rounded-pill bg-indigo bg-opacity-10 text-indigo fw-bold px-3 py-2 border border-indigo border-opacity-10">BIMOETRIC ENROLLMENT</span></div>
+        <div className="ms-auto"><span className="badge rounded-pill bg-indigo bg-opacity-10 text-indigo fw-bold px-3 py-2 border border-indigo border-opacity-10">STUDENT ENROLLMENT</span></div>
       </div>
 
       <div className="row g-0 flex-grow-1">
@@ -211,7 +195,7 @@ const StudentRegister = () => {
               <div className="p-2">
                 <div className="text-center mb-5">
                     <h2 className="fw-black text-dark mb-1">Student Registry</h2>
-                    <p className="text-muted small ls-1 text-uppercase fw-bold opacity-50">Identity Setup • Step {step}/4</p>
+                    <p className="text-muted small ls-1 text-uppercase fw-bold opacity-50">Identity Setup • Step {step}/3</p>
                 </div>
 
                 <StepTrack current={step} />
@@ -221,20 +205,7 @@ const StudentRegister = () => {
                     {/* 📸 STEP 1: IDENTITY */}
                     {step === 1 && (
                       <div className="animate__animated animate__fadeInRight">
-                        <div className="text-center mb-5">
-                          <label className="d-inline-block cursor-pointer position-relative">
-                            <div className={`rounded-circle border border-4 p-1 transition ${photo ? 'border-success' : 'border-indigo shadow-lg'}`} 
-                                 style={{ width: '120px', height: '120px', background: '#f1f5f9', overflow:'hidden' }}>
-                              {photo ? <img src={photo} className="w-100 h-100 object-fit-cover rounded-circle animate__animated animate__pulse" alt="Face" /> : <div className="w-100 h-100 d-flex align-items-center justify-content-center fs-1 opacity-20">👤</div>}
-                            </div>
-                            <div className="position-absolute bottom-0 end-0 bg-indigo text-white rounded-circle shadow-lg d-flex align-items-center justify-content-center border border-white border-4" style={{ width:'38px', height:'38px' }}>
-                              <svg fill="none" height="18" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" width="18"><path d="M12 4v16m8-8H4"></path></svg>
-                            </div>
-                            <input type="file" className="d-none" accept="image/*" onChange={handlePhoto} />
-                          </label>
-                          <div className="mt-3 fw-black text-dark text-uppercase ls-1 h6 mb-1">Capture Master Face ID</div>
-                          <div className="text-muted small fw-bold opacity-50">IDENTITY VERIFICATION PHOTO</div>
-                        </div>
+
 
                         <div className="row g-3 mb-4">
                           <div className="col-md-6 text-start">
@@ -320,41 +291,10 @@ const StudentRegister = () => {
                           <div className="invalid-feedback">{errors.confirm?.message}</div>
                         </div>
 
-                        <div className="mb-5 p-4 rounded-4 bg-light border border-opacity-50 text-start shadow-sm position-relative">
-                          <div className="form-check d-flex gap-2">
-                            <input {...reg('agreed')} className="form-check-input" type="checkbox" style={{width:20, height:20, marginTop:0}} />
-                            <label className="form-check-label ps-1 small text-dark fw-bold pe-4" style={{lineHeight:1.3}}>
-                              I consent to AI-based Face Authentication and live proctoring for safe examination.
-                            </label>
-                          </div>
-                          {errors.agreed && <div className="text-danger mt-2 fw-black extra-small text-uppercase ls-1">Consent is Mandatory!</div>}
-                        </div>
-
-                        <div className="d-flex gap-3">
+                        <div className="d-flex gap-3 mt-4">
                           <button type="button" className="btn btn-light flex-grow-1 fw-bold rounded-4 border px-4" onClick={()=>setStep(2)}>BACK</button>
-                          <button type="button" className="btn enroll-btn flex-grow-1 fw-bold rounded-4 text-uppercase ls-1" onClick={()=>nextStep(['password', 'confirm', 'agreed'])}>REVIEW PROFILE</button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ✨ STEP 4: CONFIRM */}
-                    {step === 4 && (
-                      <div className="animate__animated animate__fadeInRight text-center">
-                        <div className="card bg-white border rounded-4 p-4 mb-5 shadow-sm text-start border-indigo border-opacity-10">
-                          <div className="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
-                            <img src={photo || 'https://via.placeholder.com/150'} className="rounded-circle border border-white border-4 shadow-sm" width="60" height="60" style={{objectFit:'cover'}} />
-                            <div>
-                              <div className="fw-black h6 text-dark mb-0 text-uppercase ls-1">Biometric Registered</div>
-                              <div className="text-success small fw-bold">ID PHOTO QUEUED</div>
-                            </div>
-                          </div>
-                          <p className="extra-small text-muted mb-0 fw-bold opacity-75">All academic records and security keys have been set up. Confirm below to complete your institutional student enrollment.</p>
-                        </div>
-
-                        <div className="d-flex gap-3">
-                          <button type="button" className="btn btn-light flex-grow-1 fw-bold rounded-4 border px-4" onClick={()=>setStep(3)}>BACK</button>
                           <button type="submit" className="btn enroll-btn flex-grow-1 fw-bold rounded-4 shadow-lg text-uppercase ls-1 py-1" disabled={submitting}>
-                            {submitting ? <span className="spinner-border spinner-border-sm me-2"></span> : 'CONFIRM ENROLLMENT ✨'}
+                            {submitting ? <span className="spinner-border spinner-border-sm me-2"></span> : 'COMPLETE REGISTRATION ✨'}
                           </button>
                         </div>
                       </div>

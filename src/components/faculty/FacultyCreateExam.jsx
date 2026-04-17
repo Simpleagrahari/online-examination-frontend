@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FacultyLayout from '../../layouts/FacultyLayout';
 import { getSubjects, createExam } from '../../api';
+import { toast } from 'react-toastify';
 
 const FacultyCreateExam = () => {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ const FacultyCreateExam = () => {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const data = await getSubjects(token);
                 setSubjects(data);
                 if (data.length > 0) setForm(prev => ({ ...prev, subjectId: data[0]._id }));
@@ -43,18 +44,18 @@ const FacultyCreateExam = () => {
 
     const handleSave = async (status = 'scheduled') => {
         if (!form.title || !form.subjectId || !form.date || !form.time) {
-            alert('Please fill all required fields');
+            toast.warning('Please fill all required fields');
             return;
         }
 
         setSubmitting(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await createExam({ ...form, status }, token);
-            alert(`Exam ${status === 'draft' ? 'saved as draft' : 'published'} successfully!`);
+            toast.success(`Exam ${status === 'draft' ? 'saved as draft' : 'published'} successfully!`);
             navigate('/faculty/dashboard');
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
         } finally {
             setSubmitting(false);
         }

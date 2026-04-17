@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { getExamById, submitExam, getExamQuestions } from '../../api';
 import { toast } from 'react-toastify';
+import * as faceapi from '@vladmandic/face-api';
 
 const StudentExam = () => {
     const navigate = useNavigate();
@@ -18,11 +19,12 @@ const StudentExam = () => {
     const [error, setError] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [isRulesAccepted, setIsRulesAccepted] = useState(false); 
+    const [proctoringFlags, setProctoringFlags] = useState([]);
 
     useEffect(() => {
         const fetchExamData = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 if (!examId) throw new Error('Exam Session Not Found');
                 
                 const [data, qData] = await Promise.all([
@@ -78,14 +80,63 @@ const StudentExam = () => {
 
     useEffect(() => {
         let stream = null;
+        let detectionInterval = null;
+
         const startCamera = async () => {
             try {
+                // Load lightweight face detection models from CDN
+                await faceapi.nets.tinyFaceDetector.loadFromUri('https://vladmandic.github.io/face-api/model/');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('https://vladmandic.github.io/face-api/model/');
+                await faceapi.nets.faceRecognitionNet.loadFromUri('https://vladmandic.github.io/face-api/model/');
+
+                let referenceDescriptor = null;
+                const storedBase64 = sessionStorage.getItem('referenceFaceBase64');
+                if (storedBase64) {
+                    const img = new Image();
+                    img.src = storedBase64;
+                    await new Promise(resolve => img.onload = resolve);
+                    const refDetection = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+                    if (refDetection) {
+                        referenceDescriptor = refDetection.descriptor;
+                    }
+                }
+
                 stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } });
-                if (videoRef.current) videoRef.current.srcObject = stream;
-            } catch (err) { console.error('Enforcement Error: Cam Blocked'); }
+                
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                    
+                    videoRef.current.onplay = () => {
+                        // Scan for faces every 3 seconds
+                        detectionInterval = setInterval(async () => {
+                            if (videoRef.current && !videoRef.current.paused && !videoRef.current.ended) {
+                                const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+                                if (detections.length === 0) {
+                                    setProctoringFlags(prev => [...prev, { type: 'No Face Detected', score: 0.8, timestamp: new Date() }]);
+                                    toast.warning('⚠️ NO FACE DETECTED! Warning recorded.', { autoClose: 2000, theme: 'dark' });
+                                } else if (detections.length > 1) {
+                                    setProctoringFlags(prev => [...prev, { type: 'Multiple Faces Detected', score: 0.9, timestamp: new Date() }]);
+                                    toast.warning('⚠️ MULTIPLE FACES DETECTED! Warning recorded.', { autoClose: 4000, theme: 'dark' });
+                                } else if (referenceDescriptor && detections.length === 1) {
+                                    const distance = faceapi.euclideanDistance(detections[0].descriptor, referenceDescriptor);
+                                    if (distance > 0.55) { // 0.55 is a strict threshold 
+                                        setProctoringFlags(prev => [...prev, { type: 'Face Mismatch', score: 0.95, timestamp: new Date() }]);
+                                        toast.warning('⚠️ UNRECOGNIZED FACE DETECTED!', { autoClose: 4000, theme: 'dark' });
+                                    }
+                                }
+                            }
+                        }, 3000);
+                    };
+                }
+            } catch (err) { console.error('Enforcement Error: Cam Blocked / FaceAPI Failed', err); }
         };
+
         if (!loading && isRulesAccepted) startCamera();
-        return () => { if (stream) stream.getTracks().forEach(t => t.stop()); };
+        
+        return () => { 
+            if (detectionInterval) clearInterval(detectionInterval);
+            if (stream) stream.getTracks().forEach(t => t.stop()); 
+        };
     }, [loading, isRulesAccepted]);
 
     const formatTime = (seconds) => {
@@ -103,16 +154,25 @@ const StudentExam = () => {
         if (!isAuto && !window.confirm('Are you sure you want to finalize submission?')) return;
         setSubmitting(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const submissionData = questions.map(q => ({
                 questionId: q._id,
                 selectedOption: answers[q._id] !== undefined ? answers[q._id] : null
             }));
-            await submitExam(examId, submissionData, token);
-            navigate('/student/dashboard');
+            
+            // To prevent React's state timing issues due to closures, we take current proctoringFlags directly
+            setProctoringFlags(currentFlags => {
+                submitExam(examId, submissionData, currentFlags, token).then(() => {
+                    navigate('/student/dashboard');
+                }).catch(err => {
+                    toast.error(err.message);
+                    setSubmitting(false);
+                });
+                return currentFlags;
+            });
+            
         } catch (err) {
             toast.error(err.message);
-        } finally {
             setSubmitting(false);
         }
     };

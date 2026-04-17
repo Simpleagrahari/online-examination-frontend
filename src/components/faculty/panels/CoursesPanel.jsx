@@ -23,7 +23,7 @@ const CoursesPanel = ({ courses, filteredCourses, subjects, exams, drillCourse, 
         e.stopPropagation(); // Don't trigger course drill
         if (!window.confirm(`Are you sure you want to delete ${name}? All linked subjects and exams will be orphaned.`)) return;
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await deleteCourse(id, token);
             toast.success(`${name} deleted!`);
             if (onRefresh) onRefresh();

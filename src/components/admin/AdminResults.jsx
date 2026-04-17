@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { getAllSubmissions } from '../../api';
+import { toast } from 'react-toastify';
 
 const AdminResults = () => {
     const [submissions, setSubmissions] = useState([]);
@@ -13,7 +14,7 @@ const AdminResults = () => {
     useEffect(() => {
         const fetchResults = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const data = await getAllSubmissions(token);
                 setSubmissions(data);
             } catch (err) {
@@ -108,7 +109,7 @@ const AdminResults = () => {
 
     // -- Export CSV --
     const handleExportCSV = () => {
-        if (filteredSubmissions.length === 0) return alert('No data to export.');
+        if (filteredSubmissions.length === 0) return toast.info('No data to export.');
 
         const header = 'Student,Roll No,Email,Exam,Subject,Obtained,Total,Percentage,Status,Date\n';
         const rows = filteredSubmissions.map(sub => {

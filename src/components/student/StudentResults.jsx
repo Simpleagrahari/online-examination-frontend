@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import StudentLayout from '../../layouts/StudentLayout';
-import { getMyResults } from '../../api';
+import { getMyResults, getResultById, getMyRank } from '../../api';
+import { toast } from 'react-toastify';
 
 const StudentResults = () => {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [selectedResult, setSelectedResult] = useState(null);
+    const [rankData, setRankData] = useState({ rank: '--', totalStudents: 0 });
 
     useEffect(() => {
         const fetchResults = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const data = await getMyResults(token);
+                const token = sessionStorage.getItem('token');
+                const [data, rankInfo] = await Promise.all([
+                    getMyResults(token),
+                    getMyRank(token).catch(() => ({ rank: '--', totalStudents: 0 }))
+                ]);
                 setResults(data);
+                setRankData(rankInfo);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -21,6 +28,16 @@ const StudentResults = () => {
         };
         fetchResults();
     }, []);
+
+    const handleReview = async (id) => {
+        try {
+            const token = sessionStorage.getItem('token');
+            const data = await getResultById(id, token);
+            setSelectedResult(data);
+        } catch (err) {
+            toast.error(err.message);
+        }
+    };
 
     const totalExams = results.length;
     const avgScore = results.length > 0 ? (results.reduce((acc, curr) => acc + (curr.score || 0), 0) / results.reduce((acc, curr) => acc + (curr.examId?.totalMarks || 100), 0) * 100).toFixed(1) : 0;
@@ -53,8 +70,8 @@ const StudentResults = () => {
                 <div className="col-12 col-md-4">
                     <div className="sc ca p-3 shadow-sm border-0 d-flex flex-column align-items-center justify-content-center" style={{ background: '#fff', borderRadius: '16px' }}>
                         <div style={{ fontSize: '12px', color: 'var(--g400)', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Rank Position</div>
-                        <div className="sc-val" style={{ fontSize: '30px', fontWeight: '800', color: 'var(--amber)' }}>--</div>
-                        <div style={{ fontSize: '11px', color: 'var(--g300)' }}>Calculating...</div>
+                        <div className="sc-val" style={{ fontSize: '30px', fontWeight: '800', color: 'var(--amber)' }}>{rankData.rank}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--g300)' }}>{rankData.totalStudents > 0 ? `Out of ${rankData.totalStudents} students` : 'Processing...'}</div>
                     </div>
                 </div>
             </div>
@@ -108,7 +125,7 @@ const StudentResults = () => {
                                                 </span>
                                             </td>
                                             <td>
-                                                <button className="btn btn-outline-primary btn-xs rounded-pill px-3 shadow-none" style={{ fontSize: '11px', fontWeight: '600' }}>Review Answers</button>
+                                                <button className="btn btn-outline-primary btn-xs rounded-pill px-3 shadow-none" style={{ fontSize: '11px', fontWeight: '600' }} onClick={() => handleReview(res._id)}>Review Answers</button>
                                             </td>
                                         </tr>
                                     );
@@ -118,6 +135,50 @@ const StudentResults = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Review Answers Modal */}
+            {selectedResult && (
+                <div className="modal-custom-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                    <div className="card shadow-lg border-0 d-flex flex-column" style={{ width: '100%', maxWidth: '800px', maxHeight: '90vh', padding: '0', borderRadius: '15px' }}>
+                        <div className="cd-hd d-flex align-items-center justify-content-between p-4" style={{ borderBottom: '1px solid #eee' }}>
+                            <div>
+                                <h5 className="mb-1 fw-bold">{selectedResult.examId?.name || 'Exam Review'}</h5>
+                                <div style={{ fontSize: '13px', color: 'var(--g400)' }}>Total Marks: {selectedResult.totalMarksObtained} / {selectedResult.examId?.totalMarks || 100}</div>
+                            </div>
+                            <button className="btn-close" onClick={() => setSelectedResult(null)}></button>
+                        </div>
+                        <div className="p-4 flex-grow-1 overflow-auto" style={{ background: '#f8fafc' }}>
+                            {selectedResult.answers && selectedResult.answers.length > 0 ? (
+                                selectedResult.answers.map((ans, idx) => (
+                                    <div key={ans._id || idx} className="card p-3 mb-3 border-0 shadow-sm" style={{ borderRadius: '12px', borderLeft: ans.isCorrect ? '4px solid var(--green)' : '4px solid var(--red)' }}>
+                                        <div className="d-flex justify-content-between mb-2">
+                                            <span style={{ fontWeight: '700', fontSize: '14px', color: 'var(--g700)' }}>Q{idx + 1}. {ans.questionId?.text || 'Question text unavailable'}</span>
+                                            <span className={`badge ${ans.isCorrect ? 'b-live' : 'b-draft'}`} style={{ color: ans.isCorrect ? '#16a34a' : '#dc2626', background: ans.isCorrect ? '#f0fdf4' : '#fef2f2' }}>
+                                                {ans.marksObtained} / {ans.questionId?.marks || 0} Marks
+                                            </span>
+                                        </div>
+                                        <div className="d-flex flex-column gap-1" style={{ fontSize: '13px' }}>
+                                            <div style={{ color: 'var(--g500)' }}>
+                                                <strong>Your Answer:</strong> {ans.selectedOption || ans.tfAnswer || 'Not answered'}
+                                            </div>
+                                            {!ans.isCorrect && (
+                                                <div style={{ color: 'var(--green)' }}>
+                                                    <strong>Correct Answer:</strong> {ans.questionId?.correctOption || ans.questionId?.tfAnswer || 'N/A'}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center p-4">No answers available for review.</div>
+                            )}
+                        </div>
+                        <div className="p-3 border-top text-end" style={{ background: '#fff', borderBottomLeftRadius: '15px', borderBottomRightRadius: '15px' }}>
+                            <button className="btn btn-light px-4" onClick={() => setSelectedResult(null)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </StudentLayout>
     );
 };

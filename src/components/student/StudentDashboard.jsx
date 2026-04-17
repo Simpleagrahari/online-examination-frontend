@@ -13,7 +13,7 @@ const StudentDashboard = () => {
     useEffect(() => {
         const fetchAllData = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 if (!token) throw new Error('No authentication token found');
                 
                 const [examsData, resultsData, profileData] = await Promise.all([

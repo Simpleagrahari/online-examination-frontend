@@ -9,7 +9,7 @@ const FacultyLayout = ({ children, pageTitle = 'Dashboard' }) => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
+        const storedUser = sessionStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         } else {
@@ -18,8 +18,8 @@ const FacultyLayout = ({ children, pageTitle = 'Dashboard' }) => {
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         navigate('/');
     };
 

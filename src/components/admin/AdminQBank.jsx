@@ -10,7 +10,7 @@ const AdminQBank = () => {
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const data = await getQuestions(token);
                 setQuestions(data);
             } catch (err) {

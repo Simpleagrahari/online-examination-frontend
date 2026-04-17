@@ -35,8 +35,8 @@ const Home = () => {
             if (loginTab === 'adm' && resp.role !== 'admin') throw new Error('Not an admin account.');
             if (loginTab === 'fac' && resp.role !== 'faculty' && resp.role !== 'admin') throw new Error('Not a faculty account.');
 
-            localStorage.setItem('token', resp.token);
-            localStorage.setItem('user', JSON.stringify(resp));
+            sessionStorage.setItem('token', resp.token);
+            sessionStorage.setItem('user', JSON.stringify(resp));
             
             if (resp.role === 'admin') navigate('/admin/dashboard');
             else if (resp.role === 'faculty') navigate('/faculty/dashboard');

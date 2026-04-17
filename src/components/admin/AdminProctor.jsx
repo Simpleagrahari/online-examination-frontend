@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { getProctorLogs } from '../../api';
+import { toast } from 'react-toastify';
 
 const AdminProctor = () => {
     const [logs, setLogs] = useState([]);
@@ -13,7 +14,7 @@ const AdminProctor = () => {
     useEffect(() => {
         const fetchLogs = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const data = await getProctorLogs(token);
                 setLogs(data.logs || []);
                 setStats(data.stats || {});
@@ -109,7 +110,7 @@ const AdminProctor = () => {
 
     // -- Export CSV --
     const handleExportReport = () => {
-        if (filteredLogs.length === 0) return alert('No data to export.');
+        if (filteredLogs.length === 0) return toast.info('No data to export.');
         const header = 'Time,Student,Roll No,Exam,Violation,Severity,Score,Status\n';
         const rows = filteredLogs.map(log => {
             const sev = getSeverity(log.score);

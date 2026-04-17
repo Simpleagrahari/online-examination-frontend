@@ -51,8 +51,8 @@ export const AdminLogin = () => {
       if (data.role !== 'admin') {
         throw new Error('Access Denied: This portal is for Administrators only.');
       }
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data));
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('user', JSON.stringify(data));
       navigate('/admin/dashboard');
     } catch (err) {
       setError(err.message);
@@ -123,8 +123,8 @@ export const FacultyLogin = () => {
       if (data.role !== 'faculty' && data.role !== 'admin') {
         throw new Error('Access Denied: Faculty credentials required.');
       }
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data));
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('user', JSON.stringify(data));
       navigate('/faculty/dashboard');
     } catch (err) {
       setError(err.message);
@@ -202,8 +202,8 @@ export const StudentLogin = () => {
     setError('');
     try {
       const resp = await login({ email: data.email, password: data.password });
-      localStorage.setItem('token', resp.token);
-      localStorage.setItem('user', JSON.stringify(resp));
+      sessionStorage.setItem('token', resp.token);
+      sessionStorage.setItem('user', JSON.stringify(resp));
       navigate('/student/dashboard');
     } catch (err) {
       setError(err.message);

@@ -10,7 +10,7 @@ const FacultyMonitor = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const [examsData, subsData] = await Promise.all([
                     getExams(token),
                     getAllSubmissions(token)
@@ -36,7 +36,8 @@ const FacultyMonitor = () => {
                 exam: sub.examId?.name || 'Exam',
                 type: flag.type || 'Unknown',
                 score: flag.score || 0,
-                time: flag.timestamp ? new Date(flag.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' AM' : ''
+                timestamp: flag.timestamp,
+                time: flag.timestamp ? new Date(flag.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
             });
         });
     });
@@ -49,19 +50,22 @@ const FacultyMonitor = () => {
     const flaggedCount = submissions.filter(s => (s.proctoringFlags?.length || 0) > 0 && s.proctoringFlags.some(f => (f.score || 0) >= 0.8)).length;
 
     // Build student grid
-    const gridStudents = submissions.slice(0, 6).map(sub => {
+    const gridStudents = submissions.map(sub => {
         const flags = sub.proctoringFlags || [];
         const hasCritical = flags.some(f => (f.score || 0) >= 0.8);
         const hasWarning = flags.some(f => (f.score || 0) >= 0.5 && (f.score || 0) < 0.8);
+        const displayName = sub.studentId?.name 
+            ? (sub.studentId.name.length > 15 ? sub.studentId.name.substring(0, 12) + '...' : sub.studentId.name)
+            : 'Student';
 
         if (hasCritical) {
-            return { name: (sub.studentId?.name || 'Student').split(' ').map(n => n.slice(0,5)).join(' ') + '.', status: 'FLAGGED', color: 'var(--red)', icon: '👤👤', bg: 'rgba(220,38,38,.1)' };
+            return { name: displayName, status: 'FLAGGED', color: 'var(--red)', icon: '👤👤', bg: 'rgba(220,38,38,.1)' };
         } else if (hasWarning) {
-            return { name: (sub.studentId?.name || 'Student').split(' ').map(n => n.slice(0,5)).join(' ') + '.', status: 'WARN', color: 'var(--amber)', icon: '⬜', bg: 'rgba(217,119,6,.1)' };
+            return { name: displayName, status: 'WARN', color: 'var(--amber)', icon: '⬜', bg: 'rgba(217,119,6,.1)' };
         } else {
-            return { name: (sub.studentId?.name || 'Student').split(' ').map(n => n.slice(0,5)).join(' ') + '.', status: 'OK', color: '#6EE7B7', icon: '😊', bg: 'rgba(5,150,105,.05)' };
+            return { name: displayName, status: 'OK', color: '#6EE7B7', icon: '😊', bg: 'rgba(5,150,105,.05)' };
         }
-    });
+    }).slice(0, 6);
 
     const examTitle = liveExam?.name || (submissions[0]?.examId?.name || 'CS301 Final');
 
@@ -134,7 +138,7 @@ const FacultyMonitor = () => {
                 </div>
 
                 <div className="col-lg-8">
-                    <div className="card">
+                    <div className="card mb-0">
                         <div className="cd-hd d-flex align-items-center justify-content-between mb-3">
                             <span className="cd-t">Live Monitoring Grid</span>
                             <div className="d-flex gap-2">

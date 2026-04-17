@@ -8,7 +8,7 @@ const getId = (field) => {
     return field._id || '';
 };
 
-const QBankPanel = ({ questions, subjects, exams, openModal, onRefresh }) => {
+const QBankPanel = ({ questions, subjects, exams, openModal, onRefresh, showPanel }) => {
     const typeIcon = { MCQ: '🔵', TF: '🔀', SA: '✏️', LA: '📄', FILL: '⬜' };
     const diffBadge = {
         Easy: <span className="badge" style={{ background: '#f0fdf4', color: '#16a34a' }}>Easy</span>,
@@ -19,7 +19,7 @@ const QBankPanel = ({ questions, subjects, exams, openModal, onRefresh }) => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this question?')) return;
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await deleteQuestion(id, token);
             toast.success('Question removed!');
             if (onRefresh) onRefresh();
@@ -32,7 +32,7 @@ const QBankPanel = ({ questions, subjects, exams, openModal, onRefresh }) => {
         <div className="panel-wrap active">
             <div className="nav-cta">
                 <div className="nav-cta-txt">Add questions to the bank and <strong>link them to Exams</strong></div>
-                <button className="btn-fac-nav btn btn-info text-light">← Back to Exams</button>
+                <button className="btn-fac-nav btn btn-info text-light" onClick={() => showPanel && showPanel('exams')}>← Back to Exams</button>
             </div>
 
             <div className="mini-stats">

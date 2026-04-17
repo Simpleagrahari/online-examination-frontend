@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { getExams, deleteExam, createExam, getSubjects } from '../../api';
+import { getExams, deleteExam, createExam, getSubjects, updateExam } from '../../api';
+import { toast } from 'react-toastify';
 
 const examSchema = yup.object().shape({
     name: yup.string().required('Exam title is required'),
@@ -33,6 +34,7 @@ const AdminExams = () => {
     // Modal states
     const [showModal, setShowModal] = useState(false);
     const [formLoading, setFormLoading] = useState(false);
+    const [editingId, setEditingId] = useState(null);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: yupResolver(examSchema),
@@ -44,7 +46,7 @@ const AdminExams = () => {
 
     const fetchExams = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const data = await getExams(token);
             setExams(data);
         } catch (err) {
@@ -56,7 +58,7 @@ const AdminExams = () => {
 
     const fetchSubjects = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const data = await getSubjects(token);
             setSubjects(data);
         } catch (err) {
@@ -69,20 +71,45 @@ const AdminExams = () => {
         fetchSubjects();
     }, []);
 
+    const handleEditClick = (e) => {
+        reset({
+            name: e.name || e.title || '',
+            subjectId: e.subjectId?._id || e.subjectId || '',
+            type: e.type || 'Final Exam',
+            date: e.date ? new Date(e.date).toISOString().split('T')[0] : '',
+            time: e.time || '',
+            duration: e.duration || 0,
+            totalMarks: e.totalMarks || 0,
+            passMarks: e.passMarks || 0,
+            proctoring: e.proctoring || { faceAuth: false, liveMonitoring: false, tabSwitch: false }
+        });
+        setEditingId(e._id);
+        setShowModal(true);
+    };
+
     const onScheduleSubmit = async (data) => {
         setFormLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            await createExam(data, token);
-            alert('Exam Scheduled Successfully! ✅\nChecking the list below...');
+            const token = sessionStorage.getItem('token');
+            if (editingId) {
+                await updateExam(editingId, data, token);
+                toast.success('Exam Updated Successfully!');
+            } else {
+                await createExam(data, token);
+                toast.success('Exam Scheduled Successfully! Checking the list below...');
+            }
             setShowModal(false);
-            reset();
-            // Clear filters to show the new exam
+            reset({
+                type: 'Final Exam',
+                proctoring: { faceAuth: true, liveMonitoring: true, tabSwitch: true }
+            });
+            setEditingId(null);
+            // Clear filters to show the new/updated exam
             setSearchTerm('');
             setFilter('All');
             fetchExams();
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
         } finally {
             setFormLoading(false);
         }
@@ -91,11 +118,11 @@ const AdminExams = () => {
     const handleDeleteExam = async (id) => {
         if (!window.confirm('Warning: Deleting this exam will also delete all its questions. Continue?')) return;
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await deleteExam(id, token);
             fetchExams();
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
         }
     };
 
@@ -147,7 +174,7 @@ const AdminExams = () => {
                         <option value="Live">Live</option>
                         <option value="Completed">Completed</option>
                     </select>
-                    <button className="btn btn-n btn-sm" onClick={() => setShowModal(true)}>+ Schedule Exam</button>
+                    <button className="btn btn-n btn-sm" onClick={() => { reset({ type: 'Final Exam', proctoring: { faceAuth: true, liveMonitoring: true, tabSwitch: true } }); setEditingId(null); setShowModal(true); }}>+ Schedule Exam</button>
                 </div>
             </div>
 
@@ -206,7 +233,7 @@ const AdminExams = () => {
                                                         </svg>
                                                     </Link>
                                                 ) : (
-                                                    <button className="btn btn-g btn-xs" title="Edit Exam">
+                                                    <button className="btn btn-g btn-xs" title="Edit Exam" onClick={() => handleEditClick(e)}>
                                                         <svg fill="none" height="12" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="12">
                                                             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
                                                             <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -238,7 +265,7 @@ const AdminExams = () => {
                 <div className="modal-custom-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                     <div className="card shadow-lg border-0" style={{ width: '100%', maxWidth: '600px', padding: '0', borderRadius: '15px' }}>
                         <div className="cd-hd d-flex align-items-center justify-content-between p-4" style={{ borderBottom: '1px solid #eee' }}>
-                            <h5 className="mb-0 fw-bold">Schedule New Examination</h5>
+                            <h5 className="mb-0 fw-bold">{editingId ? 'Edit Examination' : 'Schedule New Examination'}</h5>
                             <button className="btn-close" onClick={() => setShowModal(false)}></button>
                         </div>
                         <form onSubmit={handleSubmit(onScheduleSubmit)} className="p-4">
@@ -313,7 +340,7 @@ const AdminExams = () => {
                             <div className="d-flex gap-2 justify-content-end pt-3 border-top">
                                 <button type="button" className="btn btn-light px-4" onClick={() => setShowModal(false)}>Cancel</button>
                                 <button type="submit" className="btn btn-primary px-4 fw-bold" disabled={formLoading} style={{ background: 'var(--in5)', border: 'none' }}>
-                                    {formLoading ? 'Scheduling...' : 'Schedule Exam Now'}
+                                    {formLoading ? (editingId ? 'Updating...' : 'Scheduling...') : (editingId ? 'Update Exam' : 'Schedule Exam Now')}
                                 </button>
                             </div>
                         </form>

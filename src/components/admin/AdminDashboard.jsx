@@ -18,7 +18,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const [courses, subjects, exams, backendStats] = await Promise.all([
                     getCourses(token),
                     getSubjects(token),

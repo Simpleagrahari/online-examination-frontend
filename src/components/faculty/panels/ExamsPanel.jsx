@@ -20,7 +20,7 @@ const ExamsPanel = ({ exams, subjects, courses, showPanel, onRefresh }) => {
     const handleDelete = async (id, name) => {
         if (!window.confirm(`Are you sure you want to delete ${name}? Associated questions will also be removed.`)) return;
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await deleteExam(id, token);
             toast.success(`${name} deleted!`);
             if (onRefresh) onRefresh();

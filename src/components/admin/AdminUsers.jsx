@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { getUsers, deleteUser, register as registerUser } from '../../api';
+import { toast } from 'react-toastify';
 
 // Validation Schema
 const addUserSchema = yup.object().shape({
@@ -48,7 +49,7 @@ const AdminUsers = () => {
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const data = await getUsers(token);
             setUsers(data);
         } catch (err) {
@@ -66,12 +67,12 @@ const AdminUsers = () => {
         setFormLoading(true);
         try {
             await registerUser(data);
-            alert('User Account Created Successfully! ✅');
+            toast.success('User Account Created Successfully!');
             setShowModal(false);
             reset();
             fetchUsers();
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
         } finally {
             setFormLoading(false);
         }
@@ -82,19 +83,19 @@ const AdminUsers = () => {
         const targetUser = users.find(u => u._id === id);
         
         if (targetUser && targetUser.role === 'admin') {
-            alert('⛔ Security Alert: Administrator accounts cannot be deleted!');
+            toast.error('⛔ Security Alert: Administrator accounts cannot be deleted!');
             return;
         }
 
         if (!window.confirm(`Are you sure you want to delete ${targetUser?.name || 'this user'}?`)) return;
         
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await deleteUser(id, token);
-            alert('User deleted successfully! ✅');
+            toast.success('User deleted successfully!');
             fetchUsers();
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
         }
     };
 

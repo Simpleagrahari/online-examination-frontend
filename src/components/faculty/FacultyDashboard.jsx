@@ -64,7 +64,7 @@ const FacultyDashboard = () => {
     const fetchAllData = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const [coursesData, subjectsData, examsData, questionsData] = await Promise.all([
                 getCourses(token),
                 getSubjects(token),
@@ -98,7 +98,7 @@ const FacultyDashboard = () => {
         if (!courseForm.name || !courseForm.code) return toast.error('Name & Code required');
         let sems = courseForm.duration.includes('4') ? 8 : (courseForm.duration.includes('3') ? 6 : 4);
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await createCourse({ ...courseForm, sems, icon: '📘' }, token);
             toast.success('Course created!');
             toggleModal('course');
@@ -110,7 +110,7 @@ const FacultyDashboard = () => {
     const handleCreateSubject = async () => {
         if (!subjectForm.name || !subjectForm.code) return toast.error('Name & Code required');
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const data = { ...subjectForm, courseId: activeCourseId || (courses[0]?._id) };
             await createSubject(data, token);
             toast.success('Subject added!');
@@ -123,7 +123,7 @@ const FacultyDashboard = () => {
     const handleCreateQuestion = async () => {
         if (!questionForm.text || !questionForm.examId) return toast.error('Required fields missing');
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await createQuestion(questionForm, token);
             toast.success('Question added!');
             toggleModal('question');
@@ -161,7 +161,7 @@ const FacultyDashboard = () => {
             {activePanel === 'courses' && <CoursesPanel courses={courses} filteredCourses={courses} subjects={subjects} exams={exams} drillCourse={drillCourse} openModal={() => toggleModal('course')} onRefresh={fetchAllData} />}
             {activePanel === 'subjects' && <SubjectsPanel activeCourseId={activeCourseId} courses={courses} subjects={subjects} exams={exams} showPanel={showPanel} openModal={() => toggleModal('subject')} onRefresh={fetchAllData} />}
             {activePanel === 'exams' && <ExamsPanel exams={exams} subjects={subjects} courses={courses} showPanel={showPanel} onRefresh={fetchAllData} />}
-            {activePanel === 'qbank' && <QBankPanel questions={questions} subjects={subjects} exams={exams} onRefresh={fetchAllData} openModal={() => toggleModal('question')} />}
+            {activePanel === 'qbank' && <QBankPanel questions={questions} subjects={subjects} exams={exams} onRefresh={fetchAllData} openModal={() => toggleModal('question')} showPanel={showPanel} />}
 
             {/* Modal: Add Question */}
             <BootstrapModal id="questionModal" title="❓ Add Question" show={modals.question} onHide={() => toggleModal('question')} onSubmit={handleCreateQuestion} submitLabel="Add Question">

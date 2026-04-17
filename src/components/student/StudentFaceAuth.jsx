@@ -34,7 +34,7 @@ const StudentFaceAuth = () => {
     }, []);
 
     const startScan = async () => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             toast.error("Session expired. Please login again.");
             return navigate('/student/login');
@@ -58,16 +58,18 @@ const StudentFaceAuth = () => {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+            const base64DataUrl = canvas.toDataURL('image/jpeg', 0.85); // store locally to avoid CORS
+            sessionStorage.setItem('referenceFaceBase64', base64DataUrl);
             const formData = new FormData();
             formData.append('image', blob, 'face_scan.jpg');
 
             const data = await registerFace(formData, token);
             
             // Sync session
-            const userData = JSON.parse(localStorage.getItem('user') || '{}');
+            const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
             userData.faceImage = data.faceImage;
             userData.isVerified = true;
-            localStorage.setItem('user', JSON.stringify(userData));
+            sessionStorage.setItem('user', JSON.stringify(userData));
 
             setStep(3);
             setStatus('Face verification complete ✓');

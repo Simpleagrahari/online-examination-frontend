@@ -13,7 +13,7 @@ const FacultyQBank = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const [qData, exData, subData] = await Promise.all([
                     getQuestions(token).catch(() => []),
                     getExams(token),

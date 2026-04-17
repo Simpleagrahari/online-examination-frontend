@@ -17,7 +17,7 @@ const SubjectsPanel = ({ activeCourseId, courses, subjects, exams, showPanel, op
     const handleDelete = async (id, name) => {
         if (!window.confirm(`Are you sure you want to delete ${name}? This cannot be undone.`)) return;
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await deleteSubject(id, token);
             toast.success(`${name} deleted!`);
             if (onRefresh) onRefresh();

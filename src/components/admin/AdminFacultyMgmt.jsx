@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
-import { getUsers, register, deleteUser } from '../../api';
+import { getUsers, register, deleteUser, updateUser } from '../../api';
+import { toast } from 'react-toastify';
 
 const AdminFaculty = () => {
     const [showModal, setShowModal] = useState(false);
@@ -9,6 +10,7 @@ const AdminFaculty = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [editingId, setEditingId] = useState(null);
 
     const getInitials = (name) => {
         if (!name) return '??';
@@ -17,7 +19,7 @@ const AdminFaculty = () => {
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const data = await getUsers(token);
             setUsers(data.filter(u => u.role === 'faculty' || u.role === 'admin'));
         } catch (err) {
@@ -34,25 +36,38 @@ const AdminFaculty = () => {
     const handleDeleteFaculty = async (id) => {
         if (!window.confirm('Delete this faculty account?')) return;
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await deleteUser(id, token);
             fetchUsers();
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
         }
+    };
+
+    const handleEditClick = (u) => {
+        setForm({ name: u.name, email: u.email, dept: u.dept || '', password: '', role: u.role });
+        setEditingId(u._id);
+        setShowModal(true);
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            await register(form);
-            alert('Faculty Added Successfully ✅');
+            const token = sessionStorage.getItem('token');
+            if (editingId) {
+                await updateUser(editingId, form, token);
+                toast.success('Faculty Updated Successfully');
+            } else {
+                await register(form);
+                toast.success('Faculty Added Successfully');
+            }
             setShowModal(false);
             setForm({ name: '', email: '', dept: '', password: '', role: 'faculty' });
+            setEditingId(null);
             fetchUsers();
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
         } finally {
             setSubmitting(false);
         }
@@ -82,7 +97,7 @@ const AdminFaculty = () => {
                         <option>Mathematics</option>
                         <option>Physics</option>
                     </select>
-                    <button className="btn btn-n btn-sm" onClick={() => setShowModal(true)}>+ Add faculty</button>
+                    <button className="btn btn-n btn-sm" onClick={() => { setForm({ name: '', email: '', dept: '', password: '', role: 'faculty' }); setEditingId(null); setShowModal(true); }}>+ Add faculty</button>
                 </div>
             </div>
 
@@ -118,7 +133,7 @@ const AdminFaculty = () => {
                                         <td><span className="badge b-pass">Active</span></td>
                                         <td>
                                             <div className="d-flex gap-1" style={{ alignItems: 'center' }}>
-                                                <button className="btn btn-g btn-xs" title="Edit faculty">
+                                                <button className="btn btn-g btn-xs" title="Edit faculty" onClick={() => handleEditClick(u)}>
                                                     <svg fill="none" height="12" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="12">
                                                         <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
                                                         <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -149,7 +164,7 @@ const AdminFaculty = () => {
                 <div className="modal-custom-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                     <div className="card" style={{ width: '100%', maxWidth: '500px', padding: '0' }}>
                         <div className="cd-hd d-flex align-items-center justify-content-between" style={{ borderBottom: '1px solid var(--g200)', padding: '15px 20px' }}>
-                            <span className="cd-t">Add Faculty Account</span>
+                            <span className="cd-t">{editingId ? 'Edit Faculty Account' : 'Add Faculty Account'}</span>
                             <button className="btn-close" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', fontSize: '20px' }}>×</button>
                         </div>
                         <form onSubmit={handleSave} style={{ padding: '20px' }}>
@@ -171,14 +186,16 @@ const AdminFaculty = () => {
                                     <option>Electronics</option>
                                 </select>
                             </div>
-                            <div className="mb-3">
-                                <label className="form-label" style={{ fontSize: '12px', fontWeight: '600', marginBottom: '5px', display: 'block' }}>Password</label>
-                                <input type="password" className="f-input w-100" style={{ height: '38px' }} required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
-                            </div>
+                            {!editingId && (
+                                <div className="mb-3">
+                                    <label className="form-label" style={{ fontSize: '12px', fontWeight: '600', marginBottom: '5px', display: 'block' }}>Password</label>
+                                    <input type="password" className="f-input w-100" style={{ height: '38px' }} required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+                                </div>
+                            )}
                             <div className="d-flex gap-2 justify-content-end mt-4">
                                 <button type="button" className="btn btn-g btn-sm" onClick={() => setShowModal(false)}>Cancel</button>
                                 <button type="submit" className="btn btn-n btn-sm" disabled={submitting}>
-                                    {submitting ? 'Creating...' : 'Create Account'}
+                                    {submitting ? (editingId ? 'Updating...' : 'Creating...') : (editingId ? 'Update Account' : 'Create Account')}
                                 </button>
                             </div>
                         </form>

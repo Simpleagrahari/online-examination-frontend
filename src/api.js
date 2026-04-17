@@ -130,6 +130,21 @@ export const createExam = async (examData, token) => {
         body: JSON.stringify(examData)
     });
     const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to create exam');
+    return data;
+};
+
+export const updateExam = async (id, examData, token) => {
+    const response = await fetch(`${API_BASE_URL}/exams/${id}`, {
+        method: 'PUT',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(examData)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to update exam');
     return data;
 };
 
@@ -177,14 +192,14 @@ export const getExamQuestions = async (id, token) => {
 };
 
 
-export const submitExam = async (examId, answers, token) => {
+export const submitExam = async (examId, answers, proctoringFlags, token) => {
     const response = await fetch(`${API_BASE_URL}/submissions`, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}` 
         },
-        body: JSON.stringify({ examId, answers })
+        body: JSON.stringify({ examId, answers, proctoringFlags })
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to submit exam');
@@ -224,6 +239,15 @@ export const getProctorLogs = async (token) => {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to fetch proctor logs');
+    return data;
+};
+
+export const getMyRank = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/submissions/my-rank`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to fetch rank');
     return data;
 };
 
@@ -277,5 +301,19 @@ export const deleteExam = async (id, token) => {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to delete exam');
+    return data;
+};
+
+export const updateUser = async (id, userData, token) => {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${id}`, {
+        method: 'PUT',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(userData)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to update user');
     return data;
 };

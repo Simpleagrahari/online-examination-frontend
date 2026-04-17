@@ -6,6 +6,8 @@ const FacultyMonitor = () => {
     const [submissions, setSubmissions] = useState([]);
     const [liveExam, setLiveExam] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -17,7 +19,7 @@ const FacultyMonitor = () => {
                 ]);
                 const live = examsData.find(e => e.status === 'live');
                 setLiveExam(live || null);
-                setSubmissions(subsData);
+                setSubmissions(subsData || []);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -25,6 +27,9 @@ const FacultyMonitor = () => {
             }
         };
         fetchData();
+        // Set up a poll every 10 seconds for "Live" feel
+        const interval = setInterval(fetchData, 10000);
+        return () => clearInterval(interval);
     }, []);
 
     // Build alerts from submissions
@@ -49,8 +54,14 @@ const FacultyMonitor = () => {
     const submittedCount = submissions.length;
     const flaggedCount = submissions.filter(s => (s.proctoringFlags?.length || 0) > 0 && s.proctoringFlags.some(f => (f.score || 0) >= 0.8)).length;
 
-    // Build student grid
-    const gridStudents = submissions.map(sub => {
+    // Pagination Logic
+    const totalPages = Math.ceil(submissions.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentSubmissions = submissions.slice(indexOfFirstItem, indexOfLastItem);
+
+    // Build student grid based on current page
+    const gridStudents = currentSubmissions.map(sub => {
         const flags = sub.proctoringFlags || [];
         const hasCritical = flags.some(f => (f.score || 0) >= 0.8);
         const hasWarning = flags.some(f => (f.score || 0) >= 0.5 && (f.score || 0) < 0.8);
@@ -65,9 +76,14 @@ const FacultyMonitor = () => {
         } else {
             return { name: displayName, status: 'OK', color: '#6EE7B7', icon: '😊', bg: 'rgba(5,150,105,.05)' };
         }
-    }).slice(0, 6);
+    });
 
     const examTitle = liveExam?.name || (submissions[0]?.examId?.name || 'CS301 Final');
+
+    const handlePageChange = (p) => {
+        if (p < 1 || p > totalPages) return;
+        setCurrentPage(p);
+    };
 
     if (loading) return <FacultyLayout pageTitle="Live Monitoring"><div style={{ textAlign: 'center', padding: '50px' }}>Loading Live Data...</div></FacultyLayout>;
 
@@ -167,13 +183,23 @@ const FacultyMonitor = () => {
                                 ))
                             )}
                         </div>
-                        <div className="mt-3 pt-3 border-top d-flex justify-content-center">
-                            <ul className="pagination pagination-sm m-0 gap-1 border-0">
-                                <li className="page-item active"><button className="page-link rounded">1</button></li>
-                                <li className="page-item"><button className="page-link rounded">2</button></li>
-                                <li className="page-item"><button className="page-link rounded">3</button></li>
-                            </ul>
-                        </div>
+                        {totalPages > 1 && (
+                            <div className="mt-3 pt-3 border-top d-flex justify-content-center">
+                                <ul className="pagination pagination-sm m-0 gap-1 border-0">
+                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                        <button className="page-link rounded" onClick={() => handlePageChange(currentPage - 1)}>«</button>
+                                    </li>
+                                    {[...Array(totalPages)].map((_, i) => (
+                                        <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                            <button className="page-link rounded" onClick={() => handlePageChange(i + 1)}>{i + 1}</button>
+                                        </li>
+                                    ))}
+                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                        <button className="page-link rounded" onClick={() => handlePageChange(currentPage + 1)}>»</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
